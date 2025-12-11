@@ -1,58 +1,95 @@
-# 20250104Study
-The data and paper code of the experiment conducted on January 4, 2025
+# Physics-constrained hyperspectral soil moisture modeling in red clay (20250104Study)
 
-This repository contains the core code and data for a research project on soil moisture estimation using UAV-based hyperspectral imagery and dielectric-constant-constrained hybrid models. The workflow combines:
+This repository contains the core data and source code for the experiment
+conducted on **January 4, 2025**, supporting the manuscript:
 
-- Physical soil dielectric constant (SDC) models
-- Machine-learning models based on hyperspectral features
-- Pure data-driven models
-- Hybrid physical–data models
+> Xing, M., et al. **"Improving soil moisture prediction through physics-constrained hyperspectral modeling in red clay environments"**, submitted to *Computers & Geosciences*.
 
-All raw soil moisture and hyperspectral data are stored in **`2.xlsx`** (e.g., volumetric soil water content and corresponding reflectance bands). Please adapt the column names in the scripts to your own file if needed.
+The workflow combines:
+
+- Physical soil dielectric constant (SDC) models;
+- Hyperspectral feature selection and machine-learning models;
+- Pure data-driven models;
+- Hybrid physics–data models for soil moisture prediction in red clay environments.
 
 ---
 
-## Directory Structure & Workflow
+## Repository contents
 
-**Root directory**
+The main files in this repository are:
 
 - **`2.xlsx`**  
-  Raw dataset containing soil volumetric water content and hyperspectral reflectance.
+  Core dataset containing volumetric soil water content and UAV-based hyperspectral reflectance.
+- **`2_SG平滑.xlsx`**  
+  Output of spectral smoothing (Savitzky–Golay), used as input for subsequent modeling steps.
 
 - **`0SG平滑.py`**  
-  Savitzky–Golay smoothing and basic preprocessing of spectral curves.  
-  Outputs smoothed spectra for later steps.
+  Applies Savitzky–Golay smoothing and basic preprocessing to the hyperspectral reflectance data.  
+  Reads `2.xlsx` and can optionally export smoothed spectra to `2_SG平滑.xlsx`.
 
 - **`1皮尔逊+Lasso.py`**  
-  Feature selection based on Pearson correlation and Lasso regression to identify sensitive hyperspectral bands.
+  Performs feature selection using Pearson correlation and Lasso regression to identify
+  water-sensitive spectral bands.
 
 - **`1皮尔逊+Lasso_SDC.py`**  
-  Feature selection with additional soil dielectric constant (SDC) constraints, preparing inputs for hybrid physical–data models.
+  Extends feature selection by incorporating soil dielectric constant (SDC) information,
+  preparing features for physics-constrained models.
 
-**Model folders**
+- **`fit.py` / `fit2.py`**  
+  Scripts for fitting dielectric-based physical soil moisture models
+  (e.g., Topp-type or related SDC–SMC relationships) to the experimental data.
 
-1. **`1SDC_Model/`**  
-   Implementation and fitting of soil dielectric constant models (e.g., Topp, Herkelrath, CRIM).  
-   Uses observed soil moisture to calibrate dielectric models and evaluate their accuracy and stability.
+- **`RF_SVR_LightGBM.py`**  
+  Trains and evaluates ensemble machine-learning models (Random Forest, SVR, LightGBM, etc.)
+  based on the selected hyperspectral features.  
+  This script is used as the **quick-test** entry point (see section “Quick test” below).
 
-2. **`2SHR_ML/`**  
-   Hyperspectral machine-learning models.  
-   Trains RF, SVR, BPNN, LightGBM, etc. using selected spectral features to estimate soil moisture.
+- **`RF_SVR_lightGBM.py`**  
+  Alternative implementation and/or extended version of the RF–SVR–LightGBM workflow,
+  including grid search or additional parameter settings.
 
-3. **`3Data_Model/`**  
-   Pure data-driven models.  
-   Uses multi-source inputs (spectral features, SDC estimates, etc.) to build more complex regression models and compare different feature sets/algorithms.
+- **`反演.py`**  
+  Implements the hybrid physics-constrained inversion framework, combining dielectric
+  model outputs with hyperspectral ML predictions.
 
-4. **`4Hybrid_model/`**  
-   Hybrid physical–data models.  
-   Combines outputs of dielectric constant models with machine-learning models (e.g., using SDC as extra features or residual-correction terms) to improve generalization and physical consistency.
+- **`反演图.py`**  
+  Generates key figures for the manuscript (e.g., prediction–observation scatter plots,
+  spatial patterns, or comparison of different model types).
 
-**Recommended execution order**
+- **`评价.py`**  
+  Computes and summarizes model performance metrics (e.g., R², RMSE, RPD) and writes them
+  to the Excel summary files.
 
-```text
-0SG平滑.py
-→ 1皮尔逊+Lasso.py and/or 1皮尔逊+Lasso_SDC.py
-→ 1SDC_Model/
-→ 2SHR_ML/
-→ 3Data_Model/
-→ 4Hybrid_model/
+- **`GRADM.xlsx`**, **`SMC_models_with_gridsearch.xlsx`**, **`模型对比.xlsx`**, **`Metrics.xlsx`**  
+  Excel workbooks containing model configurations, grid-search results, and performance
+  comparison among physical, data-driven, and hybrid models.
+
+- **`Data and code.zip`**  
+  Legacy archive of the same data and scripts, kept only for completeness.
+  Users are encouraged to use the unpacked files listed above instead of the zip file.
+
+---
+
+## Environment
+
+The codes were developed and tested with:
+
+- **Python 3.11**
+
+A minimal set of required Python packages includes:
+
+- `numpy`
+- `pandas`
+- `scikit-learn`
+- `scipy`
+- `matplotlib`
+- `xgboost`
+- `lightgbm`
+
+Additional packages (e.g., `torch` / `tensorflow`) may be needed if deep-learning
+models are activated in some scripts.
+
+Example installation using `pip`:
+
+```bash
+pip install numpy pandas scikit-learn scipy matplotlib xgboost lightgbm
