@@ -89,6 +89,22 @@ A minimal set of required Python packages includes:
 Additional packages (e.g., `torch` / `tensorflow`) may be needed if deep-learning
 models are activated in some scripts.
 
+
+## Quick test
+
+To verify that the code works and to reproduce a minimal version of the workflow:
+
+```bash
+git clone https://github.com/xingmingjie88/20250104Study.git
+cd 20250104Study
+
+# Activate the environment first
+conda activate smc_redclay     # or your own environment name
+
+# Run the quick test
+python quick_test/run_quick_test.py
+
+
 Example installation using `pip`:
 
 ```bash
